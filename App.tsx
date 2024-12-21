@@ -1,4 +1,6 @@
 import { StatusBar } from "expo-status-bar";
+import "@/global.css";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import React from "react";
 import { ThemeProvider } from "react-native-rapi-ui";
 import Navigation from "./src/navigation";
@@ -11,11 +13,11 @@ export default function App() {
     require("./assets/images/forget.png"),
   ];
   return (
-    <ThemeProvider images={images}>
-      <AuthProvider>
-        <Navigation />
-      </AuthProvider>
-      <StatusBar />
-    </ThemeProvider>
+    <GluestackUIProvider mode="light"><ThemeProvider images={images}>
+        <AuthProvider>
+          <Navigation />
+        </AuthProvider>
+        <StatusBar />
+      </ThemeProvider></GluestackUIProvider>
   );
 }
