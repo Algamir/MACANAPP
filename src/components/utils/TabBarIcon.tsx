@@ -14,7 +14,7 @@ export default ({ icon, focused }: { icon: any; focused: boolean }) => {
           ? isDarkmode
             ? themeColor.white100
             : themeColor.primary
-          : "rgb(143, 155, 179)"
+          : "#9BAB51"
       }
     />
   );

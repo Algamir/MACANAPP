@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Linking } from "react-native";
 import { MainStackParamList } from "../types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -19,25 +19,37 @@ export default function ({
   navigation,
 }: NativeStackScreenProps<MainStackParamList, "MainTabs">) {
   const { isDarkmode, setTheme } = useTheme();
+  const [email, setEmail] = useState<string | null>(null);
+  useEffect(() => {
+    // Récupérer la session à partir de Supabase
+    const fetchSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession(); // Utilisation de getSession()
+      if (session?.user?.email) {
+        setEmail(session.user.email); // Si l'email est dans la session, le mettre à jour
+      }
+    };
+
+    fetchSession(); // Appeler la fonction pour récupérer la session
+
+    // Optionnel : écouter les changements d'authentification
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user?.email) {
+          setEmail(session.user.email);
+        }
+      }
+    );
+
+    return () => {
+      // Annuler la souscription lorsque le composant est démonté
+      authListener.subscription.unsubscribe();
+    };
+  }, []); // Le useEffect se déclenche une seule fois au montage
+
   return (
     <Layout>
-      <TopNav
-        middleContent="Home"
-        rightContent={
-          <Ionicons
-            name={isDarkmode ? "sunny" : "moon"}
-            size={20}
-            color={isDarkmode ? themeColor.white100 : themeColor.dark}
-          />
-        }
-        rightAction={() => {
-          if (isDarkmode) {
-            setTheme("light");
-          } else {
-            setTheme("dark");
-          }
-        }}
-      />
       <View
         style={{
           flex: 1,
@@ -45,6 +57,11 @@ export default function ({
           justifyContent: "center",
         }}
       >
+        {email ? (
+          <Text>Bienvenue, {email} !</Text> // Affiche l'email si disponible
+        ) : (
+          <Text>Chargement de votre email...</Text> // Message de chargement en attendant l'email
+        )}
         <Section style={{ marginTop: 20 }}>
           <SectionContent>
             <Text fontWeight="bold" style={{ textAlign: "center" }}>

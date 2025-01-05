@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
 
 export default function ({
   navigation,
@@ -20,6 +21,17 @@ export default function ({
 
   const ESP32_URL = "http://192.168.1.37/soil"; // Remplace par l'adresse IP de ton ESP32
 
+  // Demande de permissions pour les notifications
+  useEffect(() => {
+    const requestPermission = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Permission de notification non accordée !");
+      }
+    };
+    requestPermission();
+  }, []);
+
   useEffect(() => {
     const fetchMoistureData = async () => {
       try {
@@ -27,6 +39,17 @@ export default function ({
         const data = await response.json();
         setMoisture(data.moisture);
         setLoading(false);
+
+        // Envoie une notification si trop sec
+        if (data.moisture < 500) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: "Alerte Humidité",
+              body: "Le sol est trop sec ! 🌵",
+            },
+            trigger: null, // Notification immédiate
+          });
+        }
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error);
       }
@@ -54,7 +77,7 @@ export default function ({
         rightContent={
           <Ionicons
             name={isDarkmode ? "sunny" : "moon"}
-            size={20}
+            size={15}
             color={isDarkmode ? themeColor.white100 : themeColor.dark}
           />
         }
@@ -84,7 +107,7 @@ export default function ({
         <Text
           style={{
             fontSize: 16,
-            color: isDarkmode ? themeColor.white200 : themeColor.dark200, // Style inline ici
+            color: isDarkmode ? themeColor.white200 : themeColor.dark200,
           }}
         >
           Valeur brute : {moisture !== null ? moisture : "En attente..."}

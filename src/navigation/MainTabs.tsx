@@ -8,6 +8,7 @@ import TabBarText from "../components/utils/TabBarText";
 import Home from "../screens/Home";
 import About from "../screens/About";
 import Profile from "../screens/Profile";
+import Search from "../screens/Search";
 
 const Tabs = createBottomTabNavigator();
 const MainTabs = () => {
@@ -17,8 +18,8 @@ const MainTabs = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          borderTopColor: isDarkmode ? themeColor.dark100 : "#c0c0c0",
-          backgroundColor: isDarkmode ? themeColor.dark200 : "#ffffff",
+          borderTopColor: isDarkmode ? themeColor.dark100 : "#9BAB51",
+          backgroundColor: isDarkmode ? themeColor.dark200 : "#265121",
         },
       }}
     >
@@ -31,7 +32,7 @@ const MainTabs = () => {
             <TabBarText focused={focused} title="Home" />
           ),
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} icon={"md-home"} />
+            <TabBarIcon focused={focused} icon={"home"} />
           ),
         }}
       />
@@ -43,7 +44,19 @@ const MainTabs = () => {
             <TabBarText focused={focused} title="Profile" />
           ),
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} icon={"person"} />
+            <TabBarIcon focused={focused} icon={"leaf"} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="Search"
+        component={Search}
+        options={{
+          tabBarLabel: ({ focused }) => (
+            <TabBarText focused={focused} title="Search" />
+          ),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon focused={focused} icon={"search"} />
           ),
         }}
       />
@@ -52,10 +65,10 @@ const MainTabs = () => {
         component={About}
         options={{
           tabBarLabel: ({ focused }) => (
-            <TabBarText focused={focused} title="About" />
+            <TabBarText focused={focused} title="Setting" />
           ),
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} icon={"ios-information-circle"} />
+            <TabBarIcon focused={focused} icon="cog" />
           ),
         }}
       />
