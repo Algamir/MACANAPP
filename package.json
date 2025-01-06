@@ -14,6 +14,7 @@
     "@gluestack-ui/button": "^1.0.8",
     "@gluestack-ui/form-control": "^0.1.19",
     "@gluestack-ui/icon": "^0.1.25",
+    "@gluestack-ui/image": "^0.1.11",
     "@gluestack-ui/input": "^0.1.32",
     "@gluestack-ui/nativewind-utils": "^1.0.26",
     "@gluestack-ui/overlay": "^0.1.16",
@@ -39,7 +40,7 @@
     "react-native-reanimated": "^3.16.5",
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "~4.1.0",
-    "react-native-svg": "^15.2.0",
+    "react-native-svg": "15.8.0",
     "react-native-web": "^0.19.13",
     "tailwindcss": "^3.4.17"
   },

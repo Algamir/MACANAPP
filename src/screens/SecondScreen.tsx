@@ -19,7 +19,7 @@ export default function ({
   const [moisture, setMoisture] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const ESP32_URL = "http://192.168.1.37/soil"; // Remplace par l'adresse IP de ton ESP32
+  const ESP32_URL = "http://172.20.10.2/soil"; // Remplace par l'adresse IP de ton ESP32
 
   // Demande de permissions pour les notifications
   useEffect(() => {

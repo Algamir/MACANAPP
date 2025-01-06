@@ -5,9 +5,10 @@ import {
   TouchableOpacity,
   View,
   KeyboardAvoidingView,
-  Image,
+  Image as RNImage, // Renommez l'import de React Native
   Platform,
 } from "react-native";
+import { Image } from "@/components/ui/image";
 import { supabase } from "../../initSupabase";
 import { AuthStackParamList } from "../../types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -76,31 +77,35 @@ export default function ({
               justifyContent: "center",
               paddingVertical: 20,
             }}
-          >
-            <Text
-              fontWeight="bold"
-              size="h1"
-              style={{
-                color: themeColor.primary,
-                marginBottom: 20,
-              }}
-            >
-              LOGIN
-            </Text>
-          </View>
+          ></View>
 
           {/* Logo */}
-          <View style={{ alignItems: "center", marginBottom: 20 }}>
-            <Image
-              resizeMode="contain"
-              style={{
-                height: 220,
-                width: 220,
-              }}
-              source={require("../../../assets/images/MacanaLogoNobg.svg")} // Ton logo
-            />
+          <View
+            style={{
+              alignItems: "center",
+              marginTop: Platform.OS === "web" ? 0 : -30,
+            }}
+          >
+            {Platform.OS === "web" ? (
+              // Affichage du SVG sur le web
+              <Image
+                resizeMode="contain"
+                alt="Logo"
+                size="none"
+                className="aspect-[320/208] w-full max-w-[320px]"
+                source={require("../../../assets/images/MacanaLogoNobg.svg")} // Ton logo
+              />
+            ) : (
+              // Affichage du PNG sur mobile
+              <Image
+                resizeMode="contain"
+                alt="Logo"
+                size="none"
+                className="aspect-[320/208] w-full max-w-[130px]"
+                source={require("../../../assets/images/MacanaLogo.png")} // Ton logo
+              />
+            )}
           </View>
-
           {/* Formulaire */}
           <View
             style={{
@@ -109,15 +114,18 @@ export default function ({
               maxWidth: 400,
             }}
           >
-            <FormControl className="p-4 border rounded-lg border-outline-300">
+            <FormControl>
               <VStack space="xl">
-                <Heading className="text-typography-900">Login</Heading>
+                <Heading className="color-primary-0 text-typography-900 text-center uppercase">
+                  Login
+                </Heading>
                 <VStack space="xs">
                   <Text className="text-typography-500">Email</Text>
-                  <Input className="min-w-[250px]">
+                  <Input className="bg-secondary-0 rounded-lg border-secondary-0">
                     <InputField
                       type="text"
                       placeholder="Email address"
+                      className="placeholder:text-primary-0"
                       value={email}
                       autoCapitalize="none"
                       autoCorrect={false}
@@ -128,17 +136,46 @@ export default function ({
                 </VStack>
                 <VStack space="xs">
                   <Text className="text-typography-500">Password</Text>
-                  <Input className="text-center">
+                  <Input className="bg-secondary-0 rounded-lg border-secondary-0">
                     <InputField
+                      className="placeholder:text-primary-0"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={password}
                       onChangeText={(text) => setPassword(text)}
                     />
-                    <InputSlot className="pr-3" onPress={handleState}>
-                      <InputIcon as={showPassword ? EyeIcon : EyeOffIcon} />
-                    </InputSlot>
+                    {/* Sépare la gestion de l'icône pour éviter le focus */}
+                    <TouchableOpacity
+                      className="pr-3"
+                      activeOpacity={0.8}
+                      onPress={handleState}
+                    >
+                      <InputIcon
+                        className="color-primary-0"
+                        as={showPassword ? EyeIcon : EyeOffIcon}
+                      />
+                    </TouchableOpacity>
                   </Input>
+                  <View
+                    style={{
+                      marginLeft: 4,
+                      justifyContent: "left",
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate("ForgetPassword");
+                      }}
+                    >
+                      <Text
+                        size="sm"
+                        fontWeight="bold"
+                        style={{ color: themeColor.primary }}
+                      >
+                        Forget password
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </VStack>
               </VStack>
             </FormControl>
@@ -177,28 +214,6 @@ export default function ({
                 }}
               >
                 Register here
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginTop: 10,
-              justifyContent: "center",
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("ForgetPassword");
-              }}
-            >
-              <Text
-                size="md"
-                fontWeight="bold"
-                style={{ color: themeColor.primary }}
-              >
-                Forget password
               </Text>
             </TouchableOpacity>
           </View>
