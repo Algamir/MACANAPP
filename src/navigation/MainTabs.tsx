@@ -17,6 +17,7 @@ const MainTabs = () => {
     <Tabs.Navigator
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarStyle: {
           borderTopColor: isDarkmode ? themeColor.dark100 : "#9BAB51",
           backgroundColor: isDarkmode ? themeColor.dark200 : "#265121",
@@ -40,9 +41,9 @@ const MainTabs = () => {
         name="Profile"
         component={Profile}
         options={{
-          tabBarLabel: ({ focused }) => (
-            <TabBarText focused={focused} title="Profile" />
-          ),
+          // tabBarLabel: ({ focused }) => (
+          //   <TabBarText focused={focused} title="Profile" />
+          // ),}
           tabBarIcon: ({ focused }) => (
             <TabBarIcon focused={focused} icon={"leaf"} />
           ),

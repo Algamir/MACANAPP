@@ -10,11 +10,7 @@ export default ({ icon, focused }: { icon: any; focused: boolean }) => {
       style={{ marginBottom: -7 }}
       size={24}
       color={
-        focused
-          ? isDarkmode
-            ? themeColor.white100
-            : themeColor.primary
-          : "#9BAB51"
+        focused ? (isDarkmode ? themeColor.white100 : "#E9F59E") : "#84A100"
       }
     />
   );

@@ -125,25 +125,11 @@ export default function ({
             <FormControl>
               <VStack space="xl">
                 <Heading className="color-primary-0 text-typography-900 text-center uppercase">
-                  Register
+                  Reset Password
                 </Heading>
+
                 <VStack space="xs">
-                  <Text className="text-typography-500">Email</Text>
-                  <Input className="bg-secondary-0 rounded-lg border-secondary-0">
-                    <InputField
-                      type="text"
-                      placeholder="Email address"
-                      className="placeholder:text-primary-0"
-                      value={email}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      keyboardType="email-address"
-                      onChangeText={(text) => setEmail(text)}
-                    />
-                  </Input>
-                </VStack>
-                <VStack space="xs">
-                  <Text className="text-typography-500">Password</Text>
+                  <Text className="text-typography-500">New Password</Text>
                   <Input className="bg-secondary-0 rounded-lg border-secondary-0">
                     <InputField
                       className="placeholder:text-primary-0"
@@ -166,7 +152,9 @@ export default function ({
                 </VStack>
                 {/* Champ de confirmation du mot de passe */}
                 <VStack space="xs">
-                  <Text className="text-typography-500">Confirm Password</Text>
+                  <Text className="text-typography-500">
+                    Confirm NewPassword
+                  </Text>
                   <Input className="bg-secondary-0 rounded-lg border-secondary-0">
                     <InputField
                       className="placeholder:text-primary-0"
@@ -182,8 +170,8 @@ export default function ({
                 </VStack>
               </VStack>
               <Button
-                text={loading ? "Loading" : "Create an account"}
-                onPress={register}
+                text={loading ? "Loading" : "Reset Password"}
+                onPress={resetpassword}
                 style={{
                   marginTop: 20,
                 }}

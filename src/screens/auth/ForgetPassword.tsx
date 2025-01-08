@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { StatusBar } from "expo-status-bar";
 import {
   ScrollView,
   TouchableOpacity,
   View,
   KeyboardAvoidingView,
-  Image,
+  Platform,
 } from "react-native";
+import { Image } from "@/components/ui/image";
 import { supabase } from "../../initSupabase";
 import { AuthStackParamList } from "../../types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { FormControl } from "@/components/ui/form-control";
 import {
   Layout,
   Text,
@@ -18,6 +19,9 @@ import {
   useTheme,
   themeColor,
 } from "react-native-rapi-ui";
+import { VStack } from "@/components/ui/vstack";
+import { Heading } from "@/components/ui/heading";
+import { Input, InputField } from "@/components/ui/input";
 
 export default function ({
   navigation,
@@ -27,83 +31,122 @@ export default function ({
   const [loading, setLoading] = useState<boolean>(false);
 
   async function forget() {
-    setLoading(true);
-    const { data, error } = await supabase.auth.api.resetPasswordForEmail(
-      email
-    );
-    if (!error) {
-      setLoading(false);
-      alert("Check your email to reset your password!");
+    if (!email) {
+      console.log("Error", "Please enter your email.");
+      return;
     }
-    if (error) {
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      console.log("Error", "Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Envoi de l'email de réinitialisation
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+      if (error) {
+        console.error("Error sending reset email:", error.message);
+        console.log("Error", "Error sending reset email: " + error.message);
+      } else {
+        console.log("Reset email sent:", data);
+        console.log("Success", "Check your email to reset your password!");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      console.log(
+        "Error",
+        "An unexpected error occurred. Please try again later."
+      );
+    } finally {
       setLoading(false);
-      alert(error.message);
     }
   }
+
   return (
     <KeyboardAvoidingView behavior="height" enabled style={{ flex: 1 }}>
       <Layout>
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
+            paddingHorizontal: 20,
+            backgroundColor: isDarkmode
+              ? themeColor.dark
+              : themeColor.secondary,
           }}
         >
           <View
             style={{
-              flex: 1,
-              justifyContent: "center",
               alignItems: "center",
-              backgroundColor: isDarkmode ? "#17171E" : themeColor.white100,
+              justifyContent: "center",
+              paddingVertical: 20,
             }}
-          >
-            <Image
-              resizeMode="contain"
-              style={{
-                height: 220,
-                width: 220,
-              }}
-              source={require("../../../assets/images/forget.png")}
-            />
-          </View>
+          ></View>
+
           <View
             style={{
-              flex: 3,
-              paddingHorizontal: 20,
-              paddingBottom: 20,
-              backgroundColor: isDarkmode ? themeColor.dark : themeColor.white,
+              alignItems: "center",
+              marginTop: Platform.OS === "web" ? 0 : -30,
             }}
           >
-            <Text
-              size="h3"
-              fontWeight="bold"
-              style={{
-                alignSelf: "center",
-                padding: 30,
-              }}
-            >
-              Forget Password
-            </Text>
-            <Text>Email</Text>
-            <TextInput
-              containerStyle={{ marginTop: 15 }}
-              placeholder="Enter your email"
-              value={email}
-              autoCapitalize="none"
-              autoCompleteType="off"
-              autoCorrect={false}
-              keyboardType="email-address"
-              onChangeText={(text) => setEmail(text)}
-            />
-            <Button
-              text={loading ? "Loading" : "Send email"}
-              onPress={() => {
-                forget();
-              }}
-              style={{
-                marginTop: 20,
-              }}
-              disabled={loading}
-            />
+            {Platform.OS === "web" ? (
+              <Image
+                resizeMode="contain"
+                alt="Logo"
+                size="none"
+                className="aspect-[320/208] w-full max-w-[320px]"
+                source={require("../../../assets/images/MacanaLogoNobg.svg")}
+              />
+            ) : (
+              <Image
+                resizeMode="contain"
+                alt="Logo"
+                size="none"
+                className="aspect-[320/208] w-full max-w-[130px]"
+                source={require("../../../assets/images/MacanaLogo.png")}
+              />
+            )}
+          </View>
+
+          <View
+            style={{
+              alignSelf: "center",
+              width: "100%",
+              maxWidth: 400,
+            }}
+          >
+            <FormControl>
+              <VStack space="xl">
+                <Heading className="color-primary-0 text-typography-900 text-center uppercase">
+                  Forget Password
+                </Heading>
+                <VStack space="xs">
+                  <Text className="text-typography-500">Email</Text>
+                  <Input className="bg-secondary-0 rounded-lg border-secondary-0">
+                    <InputField
+                      type="text"
+                      placeholder="Enter your email"
+                      className="placeholder:text-primary-0"
+                      value={email}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="email-address"
+                      onChangeText={(text) => setEmail(text)}
+                    />
+                  </Input>
+                </VStack>
+              </VStack>
+              <Button
+                text={loading ? "Loading" : "Send email"}
+                onPress={forget}
+                style={{
+                  marginTop: 20,
+                }}
+                disabled={loading}
+              />
+            </FormControl>
 
             <View
               style={{
