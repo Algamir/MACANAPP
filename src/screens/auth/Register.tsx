@@ -91,7 +91,8 @@ export default function ({
           <View
             style={{
               alignItems: "center",
-              marginTop: Platform.OS === "web" ? 0 : -30,
+              marginTop: Platform.OS === "web" ? 0 : 20,
+              marginBottom: Platform.OS === "web" ? 0 : 20,
             }}
           >
             {Platform.OS === "web" ? (
@@ -108,8 +109,10 @@ export default function ({
               <Image
                 resizeMode="contain"
                 alt="Logo"
-                size="none"
-                className="aspect-[320/208] w-full max-w-[130px]"
+                style={{
+                  width: Platform.OS === "web" ? 320 : 300, // Taille spécifique selon la plateforme
+                  height: Platform.OS === "web" ? 208 : 100,
+                }}
                 source={require("../../../assets/images/MacanaLogo.png")} // Ton logo
               />
             )}

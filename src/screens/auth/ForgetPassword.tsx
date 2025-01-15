@@ -85,27 +85,33 @@ export default function ({
             }}
           ></View>
 
+          {/* Logo */}
           <View
             style={{
               alignItems: "center",
-              marginTop: Platform.OS === "web" ? 0 : -30,
+              marginTop: Platform.OS === "web" ? 0 : 20,
+              marginBottom: Platform.OS === "web" ? 0 : 20,
             }}
           >
             {Platform.OS === "web" ? (
+              // Affichage du SVG sur le web
               <Image
                 resizeMode="contain"
                 alt="Logo"
                 size="none"
                 className="aspect-[320/208] w-full max-w-[320px]"
-                source={require("../../../assets/images/MacanaLogoNobg.svg")}
+                source={require("../../../assets/images/MacanaLogoNobg.svg")} // Ton logo
               />
             ) : (
+              // Affichage du PNG sur mobile
               <Image
                 resizeMode="contain"
                 alt="Logo"
-                size="none"
-                className="aspect-[320/208] w-full max-w-[130px]"
-                source={require("../../../assets/images/MacanaLogo.png")}
+                style={{
+                  width: Platform.OS === "web" ? 320 : 300, // Taille spécifique selon la plateforme
+                  height: Platform.OS === "web" ? 208 : 100,
+                }}
+                source={require("../../../assets/images/MacanaLogo.png")} // Ton logo
               />
             )}
           </View>

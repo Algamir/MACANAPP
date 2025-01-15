@@ -5,7 +5,7 @@ export const config = {
   light: vars({
     "--color-primary-0": "38 81 33",
     "--color-primary-50": "153 153 153",
-    "--color-primary-100": "128 128 128",
+    "--color-primary-100": "52 80 39",
     "--color-primary-200": "115 115 115",
     "--color-primary-300": "102 102 102",
     "--color-primary-400": "82 82 82",
@@ -18,7 +18,7 @@ export const config = {
 
     /* Secondary  */
     "--color-secondary-0": "155 171 81",
-    "--color-secondary-50": "251 251 251",
+    "--color-secondary-50": "138 150 50",
     "--color-secondary-100": "246 246 246",
     "--color-secondary-200": "242 242 242",
     "--color-secondary-300": "237 237 237",
@@ -31,7 +31,7 @@ export const config = {
     "--color-secondary-950": "157 157 157",
 
     /* Tertiary */
-    "--color-tertiary-0": "201 211 138",
+    "--color-tertiary-0": "139 159 50",
     "--color-tertiary-50": "255 242 229",
     "--color-tertiary-100": "255 233 213",
     "--color-tertiary-200": "254 209 170",

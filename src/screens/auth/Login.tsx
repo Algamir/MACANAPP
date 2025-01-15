@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   ScrollView,
@@ -27,6 +27,8 @@ import { Heading } from "@/components/ui/heading";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { ButtonText } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "@/components/ui/icon";
+import LottieView from "lottie-react-native";
+import Lottie from "lottie-react";
 
 export default function ({
   navigation,
@@ -38,6 +40,32 @@ export default function ({
   const [isInvalid, setIsInvalid] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("12345");
   const [showPassword, setShowPassword] = React.useState(false);
+  // État pour gérer l'animation
+  const [showAnimation, setShowAnimation] = useState(true);
+
+  // useEffect(() => {
+  //   // Masque l'animation après 3 secondes
+  //   const timer = setTimeout(() => setShowAnimation(false), 3000);
+  //   return () => clearTimeout(timer);
+  // }, []);
+  // if (showAnimation) {
+  //   return (
+  //     <View
+  //       style={{
+  //         flex: 1,
+  //         justifyContent: "center",
+  //         alignItems: "center",
+  //         backgroundColor: isDarkmode ? themeColor.dark : themeColor.secondary,
+  //       }}
+  //     >
+  //       <Lottie
+  //         animationData={require("../../../assets/animation/bee.json")} // Ton fichier JSON
+  //         autoPlay
+  //         loop={false} // Lecture unique
+  //       />
+  //     </View>
+  //   );
+  // }
   const handleState = () =>
     setShowPassword((showState) => {
       return !showState;
