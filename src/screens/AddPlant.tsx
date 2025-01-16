@@ -69,141 +69,94 @@ export default function ({
     });
 
     if (!result.canceled) {
-      console.log("re");
-      setSelectedImage(result.assets[0].uri);
-      await uploadImage(result.assets[0]);
+      setSelectedImage(result.assets[0].uri); // On stocke l'image sélectionnée
     }
   };
-  const uploadImage = async (image) => {
+
+  //BOUTON SAVE
+  const handleSavePlant = async () => {
+    if (!plantName || !selectedRoom || !selectedImage) {
+      Alert.alert(
+        "Erreur",
+        "Veuillez remplir tous les champs requis et choisir une image."
+      );
+      return;
+    }
     try {
-      console.log("dans l'upload");
-      const response = await fetch(image.uri);
-      const blob = await response.blob();
+      const { data, error: authError } = await supabase.auth.getUser();
 
-      // Nom du fichier dans le stockage
-      const fileName = `${uuidv4()}.jpeg`;
-
-      const { data, error } = await supabase.storage
-        .from("plant-images") // Le bucket Supabase
-        .upload(fileName, blob, {
-          contentType: "image/jpeg",
-          upsert: true, // Écrase le fichier s'il existe
-        });
-
-      if (error) {
-        throw error;
+      if (authError) {
+        console.error("Erreur d'authentification :", authError.message);
+        Alert.alert(
+          "Erreur",
+          "Impossible de récupérer l'utilisateur connecté."
+        );
+        return;
       }
 
-      const publicUrl = `https://ljncfqddlttfgctpnbgw.supabase.co/storage/v1/object/public/plant-images/${encodeURIComponent(
+      const user = data?.user; // Accéder à `user`
+
+      if (!user) {
+        Alert.alert("Erreur", "Utilisateur non connecté.");
+        return;
+      }
+
+      const userId = user.id; // Maintenant `user.id` est accessible
+
+      // Upload de l'image
+      console.log("Uploading image...");
+      const response = await fetch(selectedImage);
+      const blob = await response.blob();
+      const fileName = `${uuidv4()}.jpeg`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("plant-images")
+        .upload(fileName, blob, {
+          contentType: "image/jpeg",
+          upsert: true,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Génération de l'URL public
+      const imageUrl = `https://ljncfqddlttfgctpnbgw.supabase.co/storage/v1/object/public/plant-images/${encodeURIComponent(
         fileName
       )}`;
-      Alert.alert("Upload réussi", `Image accessible à :\n${publicUrl}`);
+
+      console.log("Image uploaded successfully:", imageUrl);
+
+      // Enregistrement des données dans la table Supabase
+      const { data: insertData, error: insertError } = await supabase
+        .from("plants") // Remplace "plants" par le nom de ta table
+        .insert([
+          {
+            name: plantName,
+            nickname: nickname || null,
+            room: selectedRoom,
+            image_url: imageUrl,
+            user_id: userId, // Inclure user_id
+          },
+        ]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      Alert.alert("Succès", "Plante enregistrée avec succès !");
+      setPlantName("");
+      setNickname("");
+      setSelectedRoom(null);
+      setSelectedImage(null);
     } catch (error) {
-      Alert.alert("Erreur", error.message);
+      console.error(error);
+      Alert.alert(
+        "Erreur",
+        "Une erreur est survenue lors de l'enregistrement."
+      );
     }
   };
-
-  // const uploadImageToSupabase = async (imageUri: string) => {
-  //   const response = await fetch(image.uri);
-  //     const blob = await response.blob();
-
-  //     // Nom du fichier dans le stockage
-  //     const fileName = `test plant.jpeg`;
-
-  //     const { data, error } = await supabase.storage
-  //       .from('plant-images') // Le bucket Supabase
-  //       .upload(fileName, blob, {
-  //         contentType: 'image/jpeg',
-  //         upsert: true, // Écrase le fichier s'il existe
-  //       });
-
-  //     if (error) {
-  //       throw error;
-  //     }
-
-  //     const publicUrl = `https://ljncfqddlttfgctpnbgw.supabase.co/storage/v1/object/public/plant-images/${encodeURIComponent(fileName)}`;
-  //     Alert.alert('Upload réussi', `Image accessible à :\n${publicUrl}`);
-  //   } catch (error) {
-  //     Alert.alert('Erreur', error.message);
-  //   }
-  // // };
-
-  // const pickImage = async () => {
-  //   try {
-  //     // Demander les permissions pour accéder à la galerie
-  //     const permissionResult =
-  //       await ImagePicker.requestMediaLibraryPermissionsAsync();
-  //     if (permissionResult.granted === false) {
-  //       alert("Permission d'accès à la galerie refusée !");
-  //       return;
-  //     }
-
-  //     // Ouvrir le picker pour choisir une image
-  //     const pickerResult = await ImagePicker.launchImageLibraryAsync({
-  //       mediaTypes: ImagePicker.MediaTypeOptions.Images, // Mise à jour du paramètre déprécié
-  //       allowsEditing: true,
-  //       aspect: [4, 3],
-  //       quality: 1,
-  //     });
-
-  //     if (!pickerResult.canceled && pickerResult.assets?.[0]?.uri) {
-  //       // Si l'utilisateur a choisi une image, uploader l'image
-  //       const imageUri = pickerResult.assets[0].uri;
-  //       const imageUrl = await uploadImageToSupabase(imageUri);
-  //       console.log("URL de l'image uploadée:", imageUrl);
-  //     } else {
-  //       alert("Aucune image sélectionnée.");
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       "Erreur lors de la sélection ou l'upload de l'image:",
-  //       error
-  //     );
-  //   }
-  // };
-
-  // // Fonction pour uploader l'image dans Supabase
-
-  // const handleSavePlant = (imageUrl: string) => {
-  //   // Traite l'image téléchargée et effectue d'autres actions comme l'ajouter à une base de données ou autre
-  //   console.log("Image enregistrée avec succès : ", imageUrl);
-  //   // Code pour ajouter l'image à un formulaire, ou l'enregistrer dans ta base de données, etc.
-  // };
-
-  // // Fonction pour prendre une photo avec la caméra
-  // const takePhoto = async () => {
-  //   const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
-  //   if (!permissionResult.granted) {
-  //     Alert.alert(
-  //       "Permission Required",
-  //       "We need permission to access your camera."
-  //     );
-  //     return;
-  //   }
-
-  //   const result = await ImagePicker.launchCameraAsync({
-  //     mediaTypes: ["images", "videos"],
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-
-  //   if (!result.canceled && result.assets[0].uri) {
-  //     const uploadedImageUrl = await uploadImageToSupabase(
-  //       result.assets[0].uri
-  //     );
-  //     if (uploadedImageUrl) {
-  //       setPlantImages([...plantImages, uploadedImageUrl]);
-  //     }
-  //   }
-  // };
-
-  // // Fonction pour supprimer une image de la liste
-  // const removeImage = (index: number) => {
-  //   const updatedImages = plantImages.filter((_, i) => i !== index);
-  //   setPlantImages(updatedImages);
-  // };
 
   return (
     <Layout>
@@ -235,12 +188,12 @@ export default function ({
             {selectedImage && (
               <Image source={{ uri: selectedImage }} style={styles.image} />
             )}
-            <Image
+            {/* <Image
               source={{
                 uri: "https://ljncfqddlttfgctpnbgw.supabase.co/storage/v1/object/public/plant-images/test%20plant.jpeg",
               }}
               style={{ width: 200, height: 200 }} // Adjust the size as needed
-            />
+            /> */}
             {/* Image Picker */}
             <VStack space="xs">
               <Text
@@ -253,7 +206,7 @@ export default function ({
                   marginTop: 15,
                 }}
               >
-                Find Your plant with AI !
+                Choose or take a photo of your plant!
               </Text>
               <View style={{ flexDirection: "row", justifyContent: "center" }}>
                 <TouchableOpacity
@@ -399,8 +352,8 @@ export default function ({
               variant="solid"
               action="primary"
               className="bg-primary-0 rounded-lg border-primary-0"
-              // onPress={handleSavePlant}
-              // disabled={!plantName || !selectedRoom}
+              onPress={handleSavePlant}
+              disabled={!plantName || !selectedRoom}
               style={{ marginTop: 20, marginBottom: 30 }}
             >
               <ButtonText className="text-white">Save Plant</ButtonText>
