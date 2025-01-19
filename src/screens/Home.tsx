@@ -58,26 +58,57 @@ export default function ({
         }}
       >
         {email ? (
-          <Text>Bienvenue, {email} !</Text> // Affiche l'email si disponible
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              textAlign: "left",
+            }}
+          >
+            Welcome, {email} !
+          </Text> // Affiche l'email si disponible
         ) : (
           <Text>Chargement de votre email...</Text> // Message de chargement en attendant l'email
         )}
-        <Section style={{ marginTop: 20 }}>
+        <Text fontWeight="bold" style={{ textAlign: "center", marginTop: 20 }}>
+          Here is How your plants are doing today
+        </Text>
+        <Section
+          style={{
+            marginTop: 20,
+            backgroundColor: isDarkmode
+              ? themeColor.dark
+              : themeColor.secondary,
+          }}
+        >
           <SectionContent>
             <Text fontWeight="bold" style={{ textAlign: "center" }}>
-              These UI components provided by Rapi UI
+              Notifications center
             </Text>
-            <Button
-              style={{ marginTop: 10 }}
-              text="Rapi UI Documentation"
-              status="info"
-              onPress={() => Linking.openURL("https://rapi-ui.kikiding.space/")}
-            />
+
             <Button
               text="Go to second screen"
               onPress={() => {
                 navigation.navigate("SecondScreen");
               }}
+              style={{
+                marginTop: 10,
+              }}
+            />
+          </SectionContent>
+        </Section>
+        <Section style={{ marginTop: 20 }}>
+          <SectionContent>
+            <Text fontWeight="bold" style={{ textAlign: "center" }}>
+              Your plants by room
+            </Text>
+            <Button
+              style={{ marginTop: 10 }}
+              text="This content is coming soon"
+              status="info"
+            />
+            <Button
+              text="This content is coming soon"
               style={{
                 marginTop: 10,
               }}

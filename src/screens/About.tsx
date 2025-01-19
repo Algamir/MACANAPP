@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+
 import { MainStackParamList } from "../types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
@@ -10,44 +10,34 @@ import {
   themeColor,
 } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
-import { supabase } from "../initSupabase";
+import * as Notifications from "expo-notifications"; // Import de Notifications pour les permissions
+import { View, TouchableOpacity, Switch, StyleSheet } from "react-native";
+import { useState, useEffect } from "react";
 
 export default function ({
   navigation,
 }: NativeStackScreenProps<MainStackParamList, "MainTabs">) {
   const { isDarkmode, setTheme } = useTheme();
-  const testUploadToSupabase = async () => {
-    try {
-      // Exemple de contenu à uploader
-      const fileContent = "Hello, this is a test file!";
-      const file = new Blob([fileContent], { type: "text/plain" });
-      // const file = new Blob([fileContent], { type: "text/plain" });
-      const fileName = `testDuseigneur`;
-
-      // Upload le fichier dans le bucket `plant-images`
-      const { data, error } = await supabase.storage
-        .from("plant-images")
-        .upload(fileName, file, {
-          cacheControl: "3600",
-          upsert: false, // Empêche d'écraser des fichiers existants
-        });
-
-      if (error) {
-        console.error("Erreur d'upload :", error.message);
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
+  const toggleNotifications = async () => {
+    if (!isNotificationsEnabled) {
+      // Demande de permission lors de l'activation
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Permission de notification non accordée !");
         return;
       }
-
-      console.log("Fichier uploadé avec succès :", data);
-      const publicUrl = `https://ljncfqddlttfgctpnbgw.supabase.co/storage/v1/object/public/plant-images/${data.path}`;
-      console.log("URL publique :", publicUrl);
-    } catch (err) {
-      console.error("Erreur inattendue :", err);
     }
+    // Basculer l'état du switch
+    setIsNotificationsEnabled((prev) => !prev);
   };
 
-  testUploadToSupabase();
   return (
-    <Layout>
+    <Layout
+      style={{
+        backgroundColor: isDarkmode ? themeColor.dark : themeColor.secondary,
+      }}
+    >
       <TopNav
         middleContent="Setting"
         rightContent={
@@ -72,8 +62,132 @@ export default function ({
           justifyContent: "center",
         }}
       >
-        <Text>This is the About tab</Text>
+        <View style={styles.container}>
+          <Text style={styles.title}>SETTINGS</Text>
+
+          <View style={styles.settingsList}>
+            {/* Language Preferences */}
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>🌐</Text>
+                <Text style={styles.text}>Language Preferences</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
+            {/* Notifications */}
+            <View style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>🔔</Text>
+                <Text style={styles.text}>Notifications</Text>
+              </View>
+              <Switch
+                value={isNotificationsEnabled}
+                onValueChange={toggleNotifications}
+                trackColor={{ false: "#767577", true: "#265121" }} // Couleur du fond
+                thumbColor={isNotificationsEnabled ? "#265121" : "#265121"} // Couleur du cercle
+              />
+            </View>
+
+            {/* Account Settings */}
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>👤</Text>
+                <Text style={styles.text}>Account Settings</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
+            {/* Support */}
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>❓</Text>
+                <Text style={styles.text}>Contact us</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>📖</Text>
+                <Text style={styles.text}>FAQ</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
+            {/* About */}
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>ℹ️</Text>
+                <Text style={styles.text}>Version 1.0.0</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>📜</Text>
+                <Text style={styles.text}>Privacy Policy</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLabel}>
+                <Text style={styles.icon}>🛡️</Text>
+                <Text style={styles.text}>Terms of Use</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </Layout>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#265121", // dark green
+    padding: 16,
+    margin: 16,
+    borderRadius: 8,
+  },
+  title: {
+    fontSize: 24,
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  settingsList: {
+    padding: 16,
+    backgroundColor: "#9BAB51", // light green
+    borderRadius: 8,
+  },
+  settingItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ffffff33",
+  },
+  settingLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  icon: {
+    fontSize: 24,
+    marginRight: 8,
+    color: "#ffffff",
+  },
+  text: {
+    color: "#ffffff",
+    fontSize: 16,
+  },
+  chevron: {
+    fontSize: 20,
+    color: "#ffffff",
+  },
+});

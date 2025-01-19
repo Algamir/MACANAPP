@@ -12,6 +12,8 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { Camera } from "expo-camera";
+import { Layout, TopNav, useTheme, themeColor } from "react-native-rapi-ui";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function PlantIdentifier({
   navigation,
@@ -21,7 +23,7 @@ export default function PlantIdentifier({
   const [plantDetails, setPlantDetails] = useState<any>(null);
   const [careDetails, setCareDetails] = useState<any>(null);
   const [cameraPermission, setCameraPermission] = useState(false);
-
+  const { isDarkmode, setTheme } = useTheme();
   const PLANTNET_API_KEY = "2b10NXoC2YxjcwgwW45hp75u";
   const TREFLE_API_KEY = "4WIrBi5NyTjlsumyT1VpAALTG_QSBGqcjlcDF-OZ268";
 
@@ -191,64 +193,78 @@ export default function PlantIdentifier({
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      {/* Bouton pour choisir une image depuis la galerie */}
-      <TouchableOpacity
-        onPress={pickImage}
-        style={{
-          padding: 10,
-          backgroundColor: "#d3d3d3",
-          borderRadius: 8,
-          marginBottom: 10,
-        }}
-      >
-        <Text>Select a Photo of the Plant</Text>
-      </TouchableOpacity>
-
-      {/* Bouton pour prendre une photo avec la caméra */}
-      <TouchableOpacity
-        onPress={takePhoto}
-        style={{
-          padding: 10,
-          backgroundColor: "#add8e6",
-          borderRadius: 8,
-          marginBottom: 20,
-        }}
-      >
-        <Text>Take a Photo with Camera</Text>
-      </TouchableOpacity>
-
-      {/* Affichage de l'image sélectionnée */}
-      {plantImage && (
-        <Image
-          source={{ uri: plantImage }}
-          style={{ width: 200, height: 200, borderRadius: 10 }}
-        />
-      )}
-
-      {/* Spinner de chargement */}
-      {loading && <ActivityIndicator size="large" color="#00ff00" />}
-
-      {/* Affichage des détails de la plante */}
-      {plantDetails && (
-        <View style={{ marginTop: 20, alignItems: "center" }}>
+    <Layout
+      style={{
+        backgroundColor: isDarkmode ? themeColor.dark : themeColor.secondary,
+      }}
+    >
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        {/* Bouton pour choisir une image depuis la galerie */}
+        <TouchableOpacity
+          onPress={pickImage}
+          style={{
+            padding: 10,
+            backgroundColor: "#A6A6A6",
+            borderRadius: 8,
+            marginBottom: 10,
+            alignItems: "center",
+          }}
+        >
           <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Scientific Name: {plantDetails.scientificName}
+            Select a Photo of the Plant from your gallery
           </Text>
-          <Text>Common Names: {plantDetails.commonNames}</Text>
-          <Text>Family: {plantDetails.family}</Text>
-        </View>
-      )}
+          <Ionicons name="image" size={40} />
+        </TouchableOpacity>
 
-      {/* Affichage des informations d'entretien */}
-      {careDetails && (
-        <View style={{ marginTop: 20, alignItems: "center" }}>
+        {/* Bouton pour prendre une photo avec la caméra */}
+        <TouchableOpacity
+          onPress={takePhoto}
+          style={{
+            padding: 10,
+            backgroundColor: "#9BAB51",
+            borderRadius: 8,
+            marginBottom: 20,
+            alignItems: "center",
+          }}
+        >
           <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Water Needs: {careDetails.water}
+            Take a Photo with Camera
           </Text>
-          <Text>Humidity: {careDetails.humidity}</Text>
-        </View>
-      )}
-    </View>
+          <Ionicons name="camera" size={40} />
+        </TouchableOpacity>
+
+        {/* Affichage de l'image sélectionnée */}
+        {plantImage && (
+          <Image
+            source={{ uri: plantImage }}
+            style={{ width: 200, height: 200, borderRadius: 10 }}
+          />
+        )}
+
+        {/* Spinner de chargement */}
+        {loading && <ActivityIndicator size="large" color="#00ff00" />}
+
+        {/* Affichage des détails de la plante */}
+        {plantDetails && (
+          <View style={{ marginTop: 20, alignItems: "center" }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+              Scientific Name: {plantDetails.scientificName}
+            </Text>
+            <Text>Common Names: {plantDetails.commonNames}</Text>
+            <Text>Family: {plantDetails.family}</Text>
+          </View>
+        )}
+
+        {/* Affichage des informations d'entretien */}
+        {careDetails && (
+          <View style={{ marginTop: 20, alignItems: "center" }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+              Water Needs: {careDetails.water}
+            </Text>
+            <Text>Humidity: {careDetails.humidity}</Text>
+          </View>
+        )}
+      </View>
+    </Layout>
   );
 }
