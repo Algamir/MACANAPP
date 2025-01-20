@@ -91,26 +91,60 @@ export default function ({
       />
       <View style={styles.container}>
         <Text fontWeight="bold" style={styles.title}>
-          Capteur d'humidité du sol
+          Soil moisture sensor
         </Text>
         {loading ? (
-          <ActivityIndicator size="large" color="#0078D7" />
+          <ActivityIndicator
+            size="large"
+            color="#9BAB51"
+            style={{
+              marginBottom: 30,
+            }}
+          />
         ) : (
-          <Text fontWeight="bold" style={styles.moisture}>
+          <Text fontWeight="bold" style={styles.moisture} status="primary">
             {moisture !== null && moisture > 1000
-              ? "Trop humide ! 🌧️"
+              ? "Too wet! 🌧️"
               : moisture !== null && moisture < 500
-              ? "Trop sec ! 🌵"
-              : "Humidité parfaite ! 🌱"}
+              ? "Too dry ! 🌵"
+              : "Perfect Humidity ! 🌱"}
           </Text>
         )}
         <Text
           style={{
             fontSize: 16,
-            color: isDarkmode ? themeColor.white200 : themeColor.dark200,
+            marginBottom: 50,
+            color: isDarkmode ? themeColor.white200 : themeColor.white200,
           }}
         >
-          Valeur brute : {moisture !== null ? moisture : "En attente..."}
+          Raw value: {moisture !== null ? moisture : "Pending..."}
+        </Text>
+      </View>
+      <View style={styles.container}>
+        <Text fontWeight="bold" style={styles.title}>
+          Ambiente humidity sensor
+        </Text>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color="#9BAB51"
+            style={{
+              marginBottom: 30,
+            }}
+          />
+        ) : (
+          <Text fontWeight="bold" style={styles.moisture} status="primary">
+            Ambient humidity level:
+          </Text>
+        )}
+        <Text
+          style={{
+            fontSize: 16,
+            marginBottom: 50,
+            color: isDarkmode ? themeColor.white200 : themeColor.white200,
+          }}
+        >
+          Raw value: {moisture !== null ? moisture : "Pending..."}
         </Text>
       </View>
     </Layout>
@@ -122,6 +156,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#265121", // dark green
+    padding: 16,
+    margin: 16,
+    borderRadius: 8,
   },
   title: {
     fontSize: 24,
@@ -131,6 +169,6 @@ const styles = StyleSheet.create({
   moisture: {
     fontSize: 20,
     marginBottom: 10,
-    color: themeColor.success,
+    color: themeColor.white,
   },
 });

@@ -1,48 +1,92 @@
 import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import {
   View,
   ScrollView,
   StyleSheet,
   Image,
+  ActivityIndicator,
   Modal,
   TouchableOpacity,
 } from "react-native";
 import { Text, Button } from "react-native-rapi-ui";
 import { supabase } from "../initSupabase";
 import { Layout, TopNav, useTheme, themeColor } from "react-native-rapi-ui";
+import * as Notifications from "expo-notifications";
+
 export default function PlantList() {
+  const route = useRoute(); // Utilise `useRoute` pour obtenir les paramètres passés à cette tab
   const [plants, setPlants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedPlant, setSelectedPlant] = useState<number | null>(null);
   const { isDarkmode, setTheme } = useTheme();
+  const [moisture, setMoisture] = useState<number | null>(null);
+
+  const ESP32_URL = "http://172.20.10.2/soil"; // Remplace par l'adresse IP de ton ESP32
+
   useEffect(() => {
-    const fetchPlants = async () => {
-      setLoading(true);
+    const fetchMoistureData = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) throw new Error("User not logged in");
-
-        const { data, error } = await supabase
-          .from("plants")
-          .select("id, name, nickname, room, image_url")
-          .eq("user_id", user.id);
-
-        if (error) throw error;
-
-        setPlants(data || []);
-      } catch (error) {
-        console.error("Error fetching plants:", error.message);
-        alert("Failed to fetch plants.");
-      } finally {
+        const response = await fetch(ESP32_URL);
+        const data = await response.json();
+        setMoisture(data.moisture);
         setLoading(false);
+
+        // Envoie une notification si trop sec
+        if (data.moisture < 500) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: "Alerte Humidité",
+              body: "Le sol est trop sec ! 🌵",
+            },
+            trigger: null, // Notification immédiate
+          });
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error);
       }
     };
 
-    fetchPlants();
+    const interval = setInterval(() => {
+      fetchMoistureData();
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  // Fonction pour charger les plantes depuis la base de données
+  const fetchPlants = async () => {
+    setLoading(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not logged in");
+
+      const { data, error } = await supabase
+        .from("plants")
+        .select("id, name, nickname, room, image_url")
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      setPlants(data || []);
+    } catch (error) {
+      console.error("Error fetching plants:", error.message);
+      alert("Failed to fetch plants.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Utilisation de useFocusEffect pour recharger les plantes chaque fois que l'écran devient actif
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPlants(); // Recharge les plantes chaque fois que tu reviens sur cette page
+    }, [])
+  );
 
   const confirmDelete = (plantId: number) => {
     setSelectedPlant(plantId); // Stocke l'ID de la plante à supprimer
@@ -116,6 +160,28 @@ export default function PlantList() {
                       {plant.nickname || plant.name}
                     </Text>
                     <Text style={styles.subtitle}>Room: {plant.room}</Text>
+
+                    <Text style={styles.subtitle}>Soil moisture sensor:</Text>
+                    {loading ? (
+                      <ActivityIndicator
+                        size="large"
+                        color="#9BAB51"
+                        style={{
+                          marginBottom: 10,
+                        }}
+                      />
+                    ) : (
+                      <Text style={styles.subtitle}>
+                        {moisture !== null && moisture > 1000
+                          ? "Too wet ! 🌧️"
+                          : moisture !== null && moisture < 500
+                          ? "Too dry ! 🌵"
+                          : "Perfect Humidity ! 🌱"}
+                      </Text>
+                    )}
+                    <Text style={styles.subtitle}>
+                      Raw value: {moisture !== null ? moisture : "Pending..."}
+                    </Text>
                   </View>
                   <TouchableOpacity
                     onPress={() => confirmDelete(plant.id)}
@@ -126,7 +192,7 @@ export default function PlantList() {
                 </View>
               ))
             ) : (
-              <Text>No plants found!</Text>
+              <Text style={styles.textload}>No plants found!</Text>
             )}
           </ScrollView>
         </View>
@@ -134,7 +200,7 @@ export default function PlantList() {
         <Modal
           visible={showModal}
           transparent={true}
-          animationType="slide"
+          animationType="fade"
           onRequestClose={() => setShowModal(false)} // Fermer si on clique en dehors
         >
           <View style={styles.modalOverlay}>
@@ -171,7 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   textload: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#ffffff",
     textAlign: "center",
@@ -236,5 +302,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
+  },
+  moisture: {
+    fontSize: 15,
+    marginBottom: 10,
+    color: themeColor.white,
   },
 });

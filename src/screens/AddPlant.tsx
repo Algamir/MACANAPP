@@ -43,6 +43,8 @@ import { supabase } from "../initSupabase";
 import * as FileSystem from "expo-file-system";
 import LottieView from "lottie-react-native"; // Import de Lottie
 import Lottie from "lottie-react";
+import Constants from "expo-constants";
+import Toast from "react-native-toast-message"; // Import pour afficher les notifications
 
 // import Lottie from "lottie-react";
 export default function ({
@@ -61,10 +63,6 @@ export default function ({
   const pickImage = async (uri: string) => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    const fileInfo = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64, // ou Binary si nécessaire
-    });
 
     if (!permissionResult.granted) {
       Alert.alert(
@@ -86,6 +84,7 @@ export default function ({
       setSelectedImage(result.assets[0].uri); // On stocke l'image sélectionnée
       console.log(result.assets[0].uri);
     }
+
     setLoading(false); // Arrêter l'animation après l'ajout
   };
 
@@ -119,7 +118,7 @@ export default function ({
 
   //BOUTON SAVE
   const handleSavePlant = async () => {
-    if (!plantName || !selectedRoom || !selectedImage) {
+    if (!plantName || !selectedRoom) {
       Alert.alert(
         "Erreur",
         "Veuillez remplir tous les champs requis et choisir une image."
@@ -158,9 +157,9 @@ export default function ({
       // Upload de l'image
 
       console.log("Uploading image...");
-      const response = await fetch(selectedImage);
-      console.log("Uapres le fetch...");
-
+      const response = await fetch(selectedImage, { mode: "no-cors" });
+      console.log("selectedImage =");
+      console.log(selectedImage);
       const blob = await response.blob();
       console.log("Uapres le blob...");
       const fileName = generateUUID();
@@ -205,8 +204,12 @@ export default function ({
       if (insertError) {
         throw insertError;
       }
+      Toast.show({
+        type: "success",
+        text1: "Plante ajoutée ! 🌱",
+        text2: `${plantName} a été ajoutée avec succès.`,
+      });
 
-      Alert.alert("Succès", "Plante enregistrée avec succès !");
       setPlantName("");
       setNickname("");
       setSelectedRoom(null);
@@ -217,7 +220,13 @@ export default function ({
         "Erreur",
         "Une erreur est survenue lors de l'enregistrement."
       );
+      Toast.show({
+        type: "error",
+        text1: "Erreur",
+        text2: "Impossible d'ajouter la plante. Réessayez.",
+      });
     }
+
     // Fais disparaître l'animation après 3 secondes
     setTimeout(() => {
       setLoading(false);
@@ -228,6 +237,7 @@ export default function ({
   const removeImage = () => {
     setSelectedImage(null); // On réinitialise l'état de l'image à null
   };
+
   return (
     <Layout
       style={{
@@ -367,9 +377,13 @@ export default function ({
                     />
                     <SelectIcon className="mr-3" as={ChevronDownIcon} />
                   </SelectTrigger>
-                  <SelectPortal>
-                    <SelectContent>
-                      <SelectItem label="Balcony" value="Balcony" />
+                  <SelectPortal style={{ marginLeft: 15 }}>
+                    <SelectContent style={{ marginLeft: 5 }}>
+                      <SelectItem
+                        style={{ marginLeft: 15 }}
+                        label="Balcony"
+                        value="Balcony"
+                      />
                       <SelectItem label="Bedroom" value="Bedroom" />
                       <SelectItem label="Kitchen" value="Kitchen" />
                       <SelectItem label="Living Room" value="Living Room" />
@@ -439,6 +453,8 @@ export default function ({
           </VStack>
         </View>
       </ScrollView>
+      {/* Toast Container */}
+      <Toast />
     </Layout>
   );
 }

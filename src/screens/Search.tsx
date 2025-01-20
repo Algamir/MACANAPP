@@ -116,10 +116,10 @@ export default function PlantIdentifier({
           commonNames: plant.species.commonNames.join(", "),
           family: plant.species.family.scientificName,
         });
-        Alert.alert(
-          "Plant Identified!",
-          `Name: ${plant.species.scientificNameWithoutAuthor}\nFamily: ${plant.species.family.scientificName}`
-        );
+        // Alert.alert(
+        //   "Plant Identified!",
+        //   `Name: ${plant.species.scientificNameWithoutAuthor}\nFamily: ${plant.species.family.scientificName}`
+        // );
 
         // Appeler Trefle API pour récupérer les informations d'entretien
         getPlantCareInfo(plant.species.scientificNameWithoutAuthor);
@@ -210,10 +210,10 @@ export default function PlantIdentifier({
             alignItems: "center",
           }}
         >
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Select a Photo of the Plant from your gallery
+          <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+            Select a Photo in your gallery
           </Text>
-          <Ionicons name="image" size={40} />
+          <Ionicons name="image" size={25} />
         </TouchableOpacity>
 
         {/* Bouton pour prendre une photo avec la caméra */}
@@ -227,10 +227,10 @@ export default function PlantIdentifier({
             alignItems: "center",
           }}
         >
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-            Take a Photo with Camera
+          <Text style={{ fontSize: 12, fontWeight: "bold" }}>
+            Take a Photo with your camera
           </Text>
-          <Ionicons name="camera" size={40} />
+          <Ionicons name="camera" size={25} />
         </TouchableOpacity>
 
         {/* Affichage de l'image sélectionnée */}
@@ -242,16 +242,30 @@ export default function PlantIdentifier({
         )}
 
         {/* Spinner de chargement */}
-        {loading && <ActivityIndicator size="large" color="#00ff00" />}
+        {loading && <ActivityIndicator size="large" color="#265121" />}
 
         {/* Affichage des détails de la plante */}
         {plantDetails && (
-          <View style={{ marginTop: 20, alignItems: "center" }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+          <View style={{ marginTop: 20 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                textAlign: "center",
+                marginBottom: 10,
+              }}
+            >
               Scientific Name: {plantDetails.scientificName}
             </Text>
-            <Text>Common Names: {plantDetails.commonNames}</Text>
-            <Text>Family: {plantDetails.family}</Text>
+
+            <Text
+              style={{ fontSize: 15, fontWeight: "bold", textAlign: "left" }}
+            >
+              🌿 Common Names:
+            </Text>
+            <Text style={{ marginBottom: 10 }}>{plantDetails.commonNames}</Text>
+            <Text style={{ fontSize: 15, fontWeight: "bold" }}>🌿 Family:</Text>
+            <Text>{plantDetails.family}</Text>
           </View>
         )}
 

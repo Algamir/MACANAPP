@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications"; // Import de Notifications pour les permissions
 import { View, TouchableOpacity, Switch, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
+import { ScrollView } from "react-native";
 
 export default function ({
   navigation,
@@ -65,7 +66,7 @@ export default function ({
         <View style={styles.container}>
           <Text style={styles.title}>SETTINGS</Text>
 
-          <View style={styles.settingsList}>
+          <ScrollView style={styles.settingsList}>
             {/* Language Preferences */}
             <TouchableOpacity style={styles.settingItem}>
               <View style={styles.settingLabel}>
@@ -84,7 +85,7 @@ export default function ({
               <Switch
                 value={isNotificationsEnabled}
                 onValueChange={toggleNotifications}
-                trackColor={{ false: "#767577", true: "#265121" }} // Couleur du fond
+                trackColor={{ false: "#A6A6A6", true: "#C9D38A" }} // Couleur du fond
                 thumbColor={isNotificationsEnabled ? "#265121" : "#265121"} // Couleur du cercle
               />
             </View>
@@ -139,7 +140,7 @@ export default function ({
               </View>
               <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         </View>
       </View>
     </Layout>
@@ -155,10 +156,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     color: "#ffffff",
     textAlign: "center",
     marginBottom: 24,
+    fontWeight: "bold",
   },
   settingsList: {
     padding: 16,
