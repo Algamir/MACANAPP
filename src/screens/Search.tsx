@@ -253,19 +253,46 @@ export default function PlantIdentifier({
                 fontWeight: "bold",
                 textAlign: "center",
                 marginBottom: 10,
+                color: isDarkmode ? themeColor.white200 : themeColor.dark,
               }}
             >
               Scientific Name: {plantDetails.scientificName}
             </Text>
 
             <Text
-              style={{ fontSize: 15, fontWeight: "bold", textAlign: "left" }}
+              style={{
+                fontSize: 15,
+                fontWeight: "bold",
+                textAlign: "left",
+                color: isDarkmode ? themeColor.white200 : themeColor.dark,
+              }}
             >
               🌿 Common Names:
             </Text>
-            <Text style={{ marginBottom: 10 }}>{plantDetails.commonNames}</Text>
-            <Text style={{ fontSize: 15, fontWeight: "bold" }}>🌿 Family:</Text>
-            <Text>{plantDetails.family}</Text>
+            <Text
+              style={{
+                marginBottom: 10,
+                color: isDarkmode ? themeColor.white200 : themeColor.dark,
+              }}
+            >
+              {plantDetails.commonNames}
+            </Text>
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: "bold",
+                color: isDarkmode ? themeColor.white200 : themeColor.dark,
+              }}
+            >
+              🌿 Family:
+            </Text>
+            <Text
+              style={{
+                color: isDarkmode ? themeColor.white200 : themeColor.dark,
+              }}
+            >
+              {plantDetails.family}
+            </Text>
           </View>
         )}
 

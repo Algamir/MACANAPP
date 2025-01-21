@@ -12,14 +12,40 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 
+import {
+  Select,
+  SelectContent,
+  SelectIcon,
+  SelectInput,
+  SelectItem,
+  SelectPortal,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { ChevronDownIcon } from "@gluestack-ui/react";
+
 export default function ({
   navigation,
 }: NativeStackScreenProps<MainStackParamList, "SecondScreen">) {
   const { isDarkmode, setTheme } = useTheme();
   const [moisture, setMoisture] = useState<number | null>(null);
+  const [bmeData, setBmeData] = useState<{
+    temperature: number | null;
+    humidity: number | null;
+    pressure: number | null;
+  }>({
+    temperature: null,
+    humidity: null,
+    pressure: null,
+  });
   const [loading, setLoading] = useState(true);
 
   const ESP32_URL = "http://172.20.10.2/soil"; // Remplace par l'adresse IP de ton ESP32
+  const ESP32_BME = "http://172.20.10.2/bme"; // Remplace par l'adresse IP de ton ESP32
+
+  const [notificationFrequency, setNotificationFrequency] = useState(60); // Fréquence en minutes
+  const [lastNotificationTime, setLastNotificationTime] = useState<
+    number | null
+  >(null);
 
   // Demande de permissions pour les notifications
   useEffect(() => {
@@ -33,19 +59,33 @@ export default function ({
   }, []);
 
   useEffect(() => {
-    const fetchMoistureData = async () => {
+    const fetchMoistureDatabme = async () => {
       try {
-        const response = await fetch(ESP32_URL);
+        const response = await fetch(ESP32_BME);
         const data = await response.json();
-        setMoisture(data.moisture);
+        setBmeData({
+          temperature: data.temperature,
+          humidity: data.humidity,
+          pressure: data.pressure,
+        });
         setLoading(false);
 
         // Envoie une notification si trop sec
-        if (data.moisture < 500) {
+        if (data.bme < 30) {
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: "Alerte Humidité",
-              body: "Le sol est trop sec ! 🌵",
+              title: "Alert humidity level of the room",
+              body: "The humidity of the room is too dry ! 🌵",
+            },
+            trigger: null, // Notification immédiate
+          });
+        }
+        // Envoie une notification si trop sec
+        if (data.bme > 90) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: "Alert humidity level of the room",
+              body: "The humidity of the room is too Wet ! 💦",
             },
             trigger: null, // Notification immédiate
           });
@@ -55,12 +95,43 @@ export default function ({
       }
     };
 
+    const fetchMoistureData = async () => {
+      try {
+        const response = await fetch(ESP32_URL);
+        const data = await response.json();
+        setMoisture(data.moisture);
+
+        // Vérifie si une notification doit être envoyée
+        if (data.moisture < 500) {
+          const currentTime = Date.now();
+          if (
+            !lastNotificationTime ||
+            currentTime - lastNotificationTime >=
+              notificationFrequency * 60 * 1000 // Notification selon la fréquence choisie
+          ) {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: "Humidity plant alert",
+                body: "The plant is too dry! 🌵",
+              },
+              trigger: null, // Notification immédiate
+            });
+
+            setLastNotificationTime(currentTime); // Met à jour le temps de la dernière notification
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error);
+      }
+    };
+
     const interval = setInterval(() => {
       fetchMoistureData();
+      fetchMoistureDatabme();
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [notificationFrequency, lastNotificationTime]);
 
   return (
     <Layout>
@@ -102,7 +173,7 @@ export default function ({
             }}
           />
         ) : (
-          <Text fontWeight="bold" style={styles.moisture} status="primary">
+          <Text fontWeight="bold" style={styles.moisture}>
             {moisture !== null && moisture > 1000
               ? "Too wet! 🌧️"
               : moisture !== null && moisture < 500
@@ -119,33 +190,49 @@ export default function ({
         >
           Raw value: {moisture !== null ? moisture : "Pending..."}
         </Text>
+        <Text fontWeight="bold" style={styles.title2}>
+          Notification Frequency
+        </Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={styles.frequencyText}>
+            Current frequency: {notificationFrequency} minutes
+          </Text>
+        </View>
       </View>
       <View style={styles.container}>
         <Text fontWeight="bold" style={styles.title}>
-          Ambiente humidity sensor
+          Ambient humidity sensor
         </Text>
         {loading ? (
           <ActivityIndicator
             size="large"
             color="#9BAB51"
-            style={{
-              marginBottom: 30,
-            }}
+            style={{ marginBottom: 30 }}
           />
         ) : (
-          <Text fontWeight="bold" style={styles.moisture} status="primary">
-            Ambient humidity level:
-          </Text>
+          <>
+            <Text style={styles.bmeData}>
+              Temperature:{" "}
+              {bmeData.temperature !== null
+                ? `${bmeData.temperature}°C`
+                : "Pending..."}
+            </Text>
+            <Text style={styles.bmeData}>
+              Humidity:{" "}
+              {bmeData.humidity !== null
+                ? `${bmeData.humidity}% RH`
+                : "Pending..."}
+            </Text>
+            <Text style={styles.bmeData}>
+              Pressure:{" "}
+              {bmeData.pressure !== null
+                ? `${bmeData.pressure} Pa`
+                : "Pending..."}
+            </Text>
+          </>
         )}
-        <Text
-          style={{
-            fontSize: 16,
-            marginBottom: 50,
-            color: isDarkmode ? themeColor.white200 : themeColor.white200,
-          }}
-        >
-          Raw value: {moisture !== null ? moisture : "Pending..."}
-        </Text>
       </View>
     </Layout>
   );
@@ -164,11 +251,30 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
-    color: themeColor.primary,
+    marginTop: 10,
+    color: themeColor.white,
+  },
+  title2: {
+    fontSize: 16,
+    marginBottom: 13,
+    marginTop: 10,
+    color: themeColor.white,
   },
   moisture: {
     fontSize: 20,
     marginBottom: 10,
+
     color: themeColor.white,
+  },
+  bmeData: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: themeColor.white,
+  },
+  frequencyText: {
+    fontSize: 12,
+    color: themeColor.white,
+    marginBottom: 10,
+    marginTop: 6,
   },
 });
